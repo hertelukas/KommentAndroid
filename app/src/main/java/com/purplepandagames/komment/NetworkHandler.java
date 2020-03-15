@@ -11,6 +11,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,6 +24,7 @@ public class NetworkHandler {
 
     static MainActivity main;
     static LoginFragment loginFragment;
+    static HomeFragment homeFragment;
 
 
 
@@ -75,7 +77,21 @@ public class NetworkHandler {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, apiURL + "/notes", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.i("response", response.toString());
+                try {
+                    JSONObject JResultUser = response.getJSONObject("user");
+                    JSONArray JNotes = JResultUser.getJSONArray("notes");
+                    for(int i = 0; i< JNotes.length(); i++) {
+                        Note note = new Note();
+                        JSONObject currentObject = JNotes.getJSONObject(i);
+                        note.title = currentObject.getString("title");
+                        note.content = currentObject.getString("content");
+                        main.notes.add(note);
+                    }
+                    homeFragment.SetNoteViewContent();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
 
             }
         }, new Response.ErrorListener() {
