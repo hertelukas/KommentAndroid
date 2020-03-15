@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -16,8 +17,8 @@ import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
 
-    ListView notesView;
-    MainActivity main;
+    private ListView notesView;
+    private MainActivity main;
 
     @Nullable
     @Override
@@ -32,7 +33,7 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    public void SetNoteViewContent(){
+    void SetNoteViewContent(){
         main = (MainActivity) getActivity();
 
         ArrayList<String> noteTitles = new ArrayList<>();
@@ -45,5 +46,12 @@ public class HomeFragment extends Fragment {
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(main, android.R.layout.simple_list_item_1, noteTitles);
 
         notesView.setAdapter(arrayAdapter);
+
+        notesView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                main.showNote(position);
+            }
+        });
     }
 }

@@ -11,5 +11,11 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="logout">Logout</string>
+    <string name="content">Content</string>
+    <string name="title">Title</string>
+    <string name="saveDialog">Do you want to save your changes?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="discardChanges">Discard Changes</string>
 
 </resources>

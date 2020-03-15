@@ -15,6 +15,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,6 +89,7 @@ public class NetworkHandler {
                         JSONObject currentObject = JNotes.getJSONObject(i);
                         note.title = currentObject.getString("title");
                         note.content = currentObject.getString("content");
+                        note.id = currentObject.getString("_id");
                         main.notes.add(note);
                     }
                     homeFragment.SetNoteViewContent();
@@ -110,6 +115,36 @@ public class NetworkHandler {
             }
         };
 
+        queue.add(jsonObjectRequest);
+    }
+
+    public static void UpdateNote(){
+        Log.i("title", main.currentNote.title);
+
+        final Map<String, String> body = new HashMap<String, String>();
+        body.put("title", main.currentNote.title);
+        body.put("content", main.currentNote.content);
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, apiURL + "/notes/" + main.currentNote.id, new JSONObject(body), new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.i("reponse", response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        })
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                headers.put("username", main.user.username);
+                headers.put("password", main.user.password);
+                return headers;
+            }
+        };
         queue.add(jsonObjectRequest);
     }
 }

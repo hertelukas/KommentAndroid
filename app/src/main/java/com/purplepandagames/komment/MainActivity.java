@@ -7,8 +7,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.app.AlertDialog;
 import android.app.Application;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +31,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     SharedPreferences sharedPreferences;
     ActionBarDrawerToggle toggle;
     View headerView;
+    Boolean showingNote = false;
+    public Note currentNote = null;
+    public int currentIndex;
+    public Boolean noteChanged = false;
+
+    NoteViewFragment noteViewFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toggle.setDrawerIndicatorEnabled(false);
         }else{
             TextView usernameTextView = headerView.findViewById(R.id.username_header);
-            usernameTextView.setText(getResources().getString(R.string.welcome) + " "  + user.username + "!");
+            usernameTextView.setText(String.format("%s %s!", getResources().getString(R.string.welcome), user.username));
             NetworkHandler.GetNotes();
         }
     }
@@ -101,13 +110,62 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    public void showNote(int index){
+        currentNote = notes.get(index);
+        currentIndex = index;
+
+        noteViewFragment = new NoteViewFragment();
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                noteViewFragment).commit();
+
+        showingNote = true;
+
+
+    }
+
     @Override
     public void onBackPressed(){
         if(drawer.isDrawerOpen(GravityCompat.START)){
             drawer.closeDrawer(GravityCompat.START);
-        }else{
+        }else if(showingNote){
+            if(noteChanged){
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(R.string.saveDialog)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                notes.get(currentIndex).content = noteViewFragment.noteContent.getText().toString();
+                                notes.get(currentIndex).title = noteViewFragment.noteTitle.getText().toString();
+                                currentNote = notes.get(currentIndex);
+                                NetworkHandler.UpdateNote();
+                                ShowHome();
+                            }
+                        })
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ShowHome();
+                            }
+                        });
+                builder.show();
+            }
+            else{
+                ShowHome();
+            }
+
+        }
+        else{
             super.onBackPressed();
         }
+    }
+
+    private void ShowHome(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new HomeFragment()).commit();
+        showingNote = false;
+        currentIndex = 1;
+        currentNote = null;
     }
 
     public void LoginUser(){
@@ -124,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new HomeFragment()).commit();
 
+        NetworkHandler.GetNotes();
 
     }
 
