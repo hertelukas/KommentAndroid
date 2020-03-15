@@ -17,5 +17,9 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="discardChanges">Discard Changes</string>
+    <string name="register">Register</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="passwordsDoNotMatch">Passwords do not match</string>
+    <string name="userexists">User already exists.</string>
 
 </resources>

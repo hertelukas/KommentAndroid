@@ -29,6 +29,7 @@ public class NetworkHandler {
     static MainActivity main;
     static LoginFragment loginFragment;
     static HomeFragment homeFragment;
+    static RegisterFragment registerFragment;
 
 
 
@@ -42,6 +43,7 @@ public class NetworkHandler {
             public void onResponse(JSONObject response) {
                 try {
                     int code = response.getInt("code");
+                    Log.i("code", "" + code);
                     if(code == 104){
                         main.LoginUser();
                     }
@@ -74,6 +76,45 @@ public class NetworkHandler {
         };
 
         queue.add(jsonObjectRequest);
+    }
+
+    public static void Register(){
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, apiURL + "/users", null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    int code = response.getInt("code");
+                    if (code == 100) {
+                        main.RegisterUser();
+                    }
+                    else if(code == 101){
+                        registerFragment.RegisterFailed("Username exists");
+                    }
+                    else {
+                        registerFragment.RegisterFailed("Registration failed. Try again later");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        })
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("username", main.user.username);
+                headers.put("password", main.user.password);
+                return headers;
+            }
+        };
+
+        queue.add(jsonObjectRequest);
+
     }
 
     public static void GetNotes() {

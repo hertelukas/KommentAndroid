@@ -73,9 +73,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if(user.username.length() < 1)
         {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LoginFragment()).commit();
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            toggle.setDrawerIndicatorEnabled(false);
+            showLogin();
         }else{
             TextView usernameTextView = headerView.findViewById(R.id.username_header);
             usernameTextView.setText(String.format("%s %s!", getResources().getString(R.string.welcome), user.username));
@@ -160,7 +158,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    public void showRegister(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LoginFragment()).commit();
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        toggle.setDrawerIndicatorEnabled(false);
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new RegisterFragment()).commit();
+    }
+
+    public void showLogin(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LoginFragment()).commit();
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        toggle.setDrawerIndicatorEnabled(false);
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new LoginFragment()).commit();
+    }
+
     private void ShowHome(){
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        toggle.setDrawerIndicatorEnabled(true);
+
+        TextView usernameTextView = headerView.findViewById(R.id.username_header);
+        usernameTextView.setText(String.format("%s %s!", getResources().getString(R.string.welcome), user.username));
+
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new HomeFragment()).commit();
         showingNote = false;
@@ -169,21 +191,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void LoginUser(){
-        Log.i("Info", "Logging in user!");
         sharedPreferences.edit().putString("username", user.username).apply();
         sharedPreferences.edit().putString("password", user.password).apply();
 
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        toggle.setDrawerIndicatorEnabled(true);
-
-        TextView usernameTextView = headerView.findViewById(R.id.username_header);
-        usernameTextView.setText(getResources().getString(R.string.welcome) + " "  + user.username + "!");
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new HomeFragment()).commit();
-
+        ShowHome();
         NetworkHandler.GetNotes();
+    }
 
+    public void RegisterUser(){
+        sharedPreferences.edit().putString("username", user.username).apply();
+        sharedPreferences.edit().putString("password", user.password).apply();
+
+        ShowHome();
     }
 
 
@@ -191,5 +210,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void Logout(){
         sharedPreferences.edit().putString("username", "").apply();
         sharedPreferences.edit().putString("password", "").apply();
+
+        finish();
     }
 }
