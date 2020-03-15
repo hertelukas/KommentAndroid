@@ -7,24 +7,34 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     public User user = new User();
+    public List<Note> notes;
     SharedPreferences sharedPreferences;
+    ActionBarDrawerToggle toggle;
+    View headerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        NetworkHandler.main = this;
+        NetworkHandler.Initialize();
 
         sharedPreferences = this.getSharedPreferences("com.purplepandagames.komment", Context.MODE_PRIVATE);
         user.username = sharedPreferences.getString("username", "");
@@ -36,10 +46,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        View headerView = navigationView.getHeaderView(0);
+        headerView = navigationView.getHeaderView(0);
 
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -52,9 +62,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(user.username.length() < 1)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LoginFragment()).commit();
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            toggle.setDrawerIndicatorEnabled(false);
         }else{
             TextView usernameTextView = headerView.findViewById(R.id.username_header);
             usernameTextView.setText(getResources().getString(R.string.welcome) + " "  + user.username + "!");
+            NetworkHandler.GetNotes();
         }
     }
 
@@ -95,12 +108,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void LoginUser(){
+        Log.i("Info", "Logging in user!");
         sharedPreferences.edit().putString("username", user.username).apply();
         sharedPreferences.edit().putString("password", user.password).apply();
 
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        toggle.setDrawerIndicatorEnabled(true);
+
+        TextView usernameTextView = headerView.findViewById(R.id.username_header);
+        usernameTextView.setText(getResources().getString(R.string.welcome) + " "  + user.username + "!");
+
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new HomeFragment()).commit();
+
+
     }
+
+
 
     public void Logout(){
         sharedPreferences.edit().putString("username", "").apply();
