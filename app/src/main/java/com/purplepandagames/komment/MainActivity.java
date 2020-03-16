@@ -143,6 +143,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                if(newNote){
+                                    notes.remove(currentIndex);
+                                }
                                 ShowHome();
                             }
                         });
