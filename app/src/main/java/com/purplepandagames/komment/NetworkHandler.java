@@ -160,6 +160,8 @@ public class NetworkHandler {
     }
 
     public static void UpdateNote(){
+        Log.i("info", "Updating note");
+
         Log.i("title", main.currentNote.title);
 
         final Map<String, String> body = new HashMap<String, String>();

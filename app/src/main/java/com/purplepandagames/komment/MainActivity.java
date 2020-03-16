@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public Note currentNote = null;
     public int currentIndex;
     public Boolean noteChanged = false;
+    public static Boolean newNote = false;
 
     NoteViewFragment noteViewFragment;
 
@@ -111,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void showNote(int index){
         currentNote = notes.get(index);
         currentIndex = index;
+        showingNote = true;
 
         noteViewFragment = new NoteViewFragment();
 
@@ -118,8 +120,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 noteViewFragment).commit();
 
         showingNote = true;
-
-
     }
 
     @Override
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(drawer.isDrawerOpen(GravityCompat.START)){
             drawer.closeDrawer(GravityCompat.START);
         }else if(showingNote){
-            if(noteChanged){
+            if(noteChanged && noteViewFragment.noteTitle != null && noteViewFragment.noteTitle.getText().toString().length() > 0  && noteViewFragment.noteTitle != null){
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(R.string.saveDialog)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -148,10 +148,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         });
                 builder.show();
             }
+            else if(newNote){
+                notes.remove(currentIndex);
+                ShowHome();
+            }
             else{
                 ShowHome();
             }
-
         }
         else{
             super.onBackPressed();
@@ -188,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         showingNote = false;
         currentIndex = 1;
         currentNote = null;
+        Log.i("Info", "Showing home done successfully");
     }
 
     public void LoginUser(){

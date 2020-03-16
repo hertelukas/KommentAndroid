@@ -7,11 +7,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -20,14 +23,31 @@ public class HomeFragment extends Fragment {
     private ListView notesView;
     private MainActivity main;
 
+    FloatingActionButton fab;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.fragment_home, container, false);
         NetworkHandler.homeFragment = this;
 
-        notesView = view.findViewById(R.id.notes_view);
+        fab = view.findViewById(R.id.createNote);
+
         main = (MainActivity) getActivity();
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Note note = new Note();
+                note.title = "";
+                note.content = "";
+                main.newNote = true;
+                main.notes.add(note);
+                main.showNote(main.notes.size()-1);
+            }
+        });
+
+        notesView = view.findViewById(R.id.notes_view);
         SetNoteViewContent();
 
         return view;
@@ -51,6 +71,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 main.showNote(position);
+                main.newNote = false;
             }
         });
     }
