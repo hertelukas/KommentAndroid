@@ -78,9 +78,16 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(password.getText().toString().equals(passwordConfirm.getText().toString())){
-                    main.user.username = username.getText().toString();
-                    main.user.password = password.getText().toString();
-                    NetworkHandler.Register();
+                    if(username.getText().toString().length() < 5){
+                        warningText.setText(R.string.usernametooshort);
+                    }else if(password.getText().toString().length() < 8){
+                        warningText.setText(R.string.passwordtooshort);
+                    }else{
+                        main.user.username = username.getText().toString();
+                        main.user.password = password.getText().toString();
+                        NetworkHandler.Register();
+                    }
+
                 }
                 else{
                     warningText.setText(R.string.passwordsDoNotMatch);

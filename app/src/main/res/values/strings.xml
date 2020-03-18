@@ -20,6 +20,8 @@
     <string name="register">Register</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="passwordsDoNotMatch">Passwords do not match</string>
-    <string name="userexists">User already exists.</string>
+    <string name="userexists">User already exists.</string>\
+    <string name="usernametooshort">Username is too short</string>
+    <string name="passwordtooshort">Password is too short</string>
 
 </resources>

@@ -136,7 +136,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 notes.get(currentIndex).content = noteViewFragment.noteContent.getText().toString();
                                 notes.get(currentIndex).title = noteViewFragment.noteTitle.getText().toString();
                                 currentNote = notes.get(currentIndex);
-                                NetworkHandler.UpdateNote();
+                                if(newNote){
+                                    Log.i("Info", "Posting a new note");
+                                    NetworkHandler.PostNote postTask = new NetworkHandler.PostNote();
+                                    postTask.execute("https://kommentapi.herokuapp.com/notes/");
+                                }else{
+                                    NetworkHandler.UpdateNote updateTask = new NetworkHandler.UpdateNote();
+                                    updateTask.execute("https://kommentapi.herokuapp.com/notes/" + currentNote.id);
+                                }
                                 ShowHome();
                             }
                         })

@@ -1,6 +1,7 @@
 package com.purplepandagames.komment;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -17,8 +18,15 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -159,35 +167,201 @@ public class NetworkHandler {
         queue.add(jsonObjectRequest);
     }
 
-    public static void UpdateNote(){
-        Log.i("info", "Updating note");
+    public static class UpdateNote  extends AsyncTask<String,Void,String> {
 
-        Log.i("title", main.currentNote.title);
+        @Override
+        protected String doInBackground(String... urls) {
+            String result = "";
+            URL url;
+            HttpURLConnection urlConnection = null;
+            JSONObject body = new JSONObject();
+            try {
+                body.put("title", main.currentNote.title);
+                body.put("content", main.currentNote.content);
+                try {
+                    url = new URL(urls[0]);
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("PUT");
+                    urlConnection.addRequestProperty("username", main.user.username);
+                    urlConnection.addRequestProperty("password", main.user.password);
+                    urlConnection.addRequestProperty("Content-Type", "application/json");
+//                    urlConnection.addRequestProperty("Accept", "application/json");
+                    urlConnection.setDoOutput(true);
 
-        final Map<String, String> body = new HashMap<String, String>();
-        body.put("title", main.currentNote.title);
-        body.put("content", main.currentNote.content);
+                    try(OutputStream os = urlConnection.getOutputStream()){
+                        Log.i("Body String", body.toString());
+                        byte[] input = body.toString().getBytes("utf-8");
+                        Log.i("Body", input.toString());
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, apiURL + "/notes/" + main.currentNote.id, new JSONObject(body), new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.i("reponse", response.toString());
+                        os.write(input, 0, input.length);
+                    }
+
+                    InputStream in = urlConnection.getInputStream();
+                    InputStreamReader reader = new InputStreamReader(in);
+                    int data = reader.read();
+                    while (data != -1){
+                        char current = (char) data;
+                        result += current;
+                        data += current;
+                        data = reader.read();
+                    }
+                    return result;
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    return null;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return  null;
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        }
 
-            }
-        })
-        {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap headers = new HashMap();
-                headers.put("username", main.user.username);
-                headers.put("password", main.user.password);
-                return headers;
-            }
-        };
-        queue.add(jsonObjectRequest);
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Log.i("JSON", s);
+        }
+
+        //        public static MainActivity main;
+//        private static String apiURL = "https://kommentapi.herokuapp.com";
+//
+//
+//        @Override
+//        protected String doInBackground(String... strings) {
+//            String urlString = apiURL + "/notes/" + main.currentNote.id;
+//            Log.i("Info", "Updating note to " + urlString);
+//            URL url = null;
+//            try {
+//                url = new URL(urlString);
+//
+//                try {
+//                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//                    con.setRequestMethod("PUT");
+//                    con.setRequestProperty("username", main.user.username);
+//                    con.setRequestProperty("password", main.user.password);
+//                    con.setRequestProperty("Content-Type", "application/json; utf-8");
+//
+//                    con.setDoOutput(true);
+//                    String jsonBodyString = String.format("{title: %s, content: %s}", main.currentNote.title, main.currentNote.content);
+//                    Log.i("JSON String", jsonBodyString);
+//                    try(OutputStream os = con.getOutputStream()){
+//                        byte[] input = jsonBodyString.getBytes("utf-8");
+//                        os.write(input, 0, input.length);
+//                    }
+//
+//
+//                } catch (IOException e) {
+//                    Log.e("error", e.toString());
+//                    e.printStackTrace();
+//                }
+//
+//            } catch (MalformedURLException e) {
+//                Log.e("error", e.toString());
+//                e.printStackTrace();
+//            }
+//            return null;
+//        }
+
     }
+
+    public static class PostNote  extends AsyncTask<String,Void,String> {
+
+        @Override
+        protected String doInBackground(String... urls) {
+            String result = "";
+            URL url;
+            HttpURLConnection urlConnection = null;
+            JSONObject body = new JSONObject();
+            try {
+                body.put("title", main.currentNote.title);
+                body.put("content", main.currentNote.content);
+                try {
+                    url = new URL(urls[0]);
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.addRequestProperty("username", main.user.username);
+                    urlConnection.addRequestProperty("password", main.user.password);
+                    urlConnection.addRequestProperty("Content-Type", "application/json");
+                    urlConnection.setDoOutput(true);
+
+                    try(OutputStream os = urlConnection.getOutputStream()){
+                        Log.i("Body String", body.toString());
+                        byte[] input = body.toString().getBytes("utf-8");
+                        Log.i("Body", input.toString());
+
+                        os.write(input, 0, input.length);
+                    }
+
+                    InputStream in = urlConnection.getInputStream();
+                    InputStreamReader reader = new InputStreamReader(in);
+                    int data = reader.read();
+                    while (data != -1){
+                        char current = (char) data;
+                        result += current;
+                        data += current;
+                        data = reader.read();
+                    }
+                    return result;
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    return null;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return  null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Log.i("JSON", s);
+        }
+
+        //        public static MainActivity main;
+//        private static String apiURL = "https://kommentapi.herokuapp.com";
+//
+//
+//        @Override
+//        protected String doInBackground(String... strings) {
+//            String urlString = apiURL + "/notes/" + main.currentNote.id;
+//            Log.i("Info", "Updating note to " + urlString);
+//            URL url = null;
+//            try {
+//                url = new URL(urlString);
+//
+//                try {
+//                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//                    con.setRequestMethod("PUT");
+//                    con.setRequestProperty("username", main.user.username);
+//                    con.setRequestProperty("password", main.user.password);
+//                    con.setRequestProperty("Content-Type", "application/json; utf-8");
+//
+//                    con.setDoOutput(true);
+//                    String jsonBodyString = String.format("{title: %s, content: %s}", main.currentNote.title, main.currentNote.content);
+//                    Log.i("JSON String", jsonBodyString);
+//                    try(OutputStream os = con.getOutputStream()){
+//                        byte[] input = jsonBodyString.getBytes("utf-8");
+//                        os.write(input, 0, input.length);
+//                    }
+//
+//
+//                } catch (IOException e) {
+//                    Log.e("error", e.toString());
+//                    e.printStackTrace();
+//                }
+//
+//            } catch (MalformedURLException e) {
+//                Log.e("error", e.toString());
+//                e.printStackTrace();
+//            }
+//            return null;
+//        }
+
+    }
+
+
+
 }
