@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             showLogin();
         }else{
+
             TextView usernameTextView = headerView.findViewById(R.id.username_header);
             usernameTextView.setText(String.format("%s %s!", getResources().getString(R.string.welcome), user.username));
             NetworkHandler.GetNotes();
@@ -86,8 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.nav_home:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new HomeFragment()).commit();
+                ShowHome();
                 break;
 
             case R.id.nav_account:
@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void ShowHome(){
+        NetworkHandler.GetNotes();
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         toggle.setDrawerIndicatorEnabled(true);
 

@@ -79,9 +79,9 @@ public class RegisterFragment extends Fragment {
             public void onClick(View v) {
                 if(password.getText().toString().equals(passwordConfirm.getText().toString())){
                     if(username.getText().toString().length() < 5){
-                        warningText.setText(R.string.usernametooshort);
+                        warningText.setText(R.string.username_too_short);
                     }else if(password.getText().toString().length() < 8){
-                        warningText.setText(R.string.passwordtooshort);
+                        warningText.setText(R.string.password_too_short);
                     }else{
                         main.user.username = username.getText().toString();
                         main.user.password = password.getText().toString();

@@ -1,5 +1,8 @@
 package com.purplepandagames.komment;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,14 +10,18 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -22,6 +29,8 @@ public class HomeFragment extends Fragment {
 
     private ListView notesView;
     private MainActivity main;
+    private SwipeRefreshLayout swiper;
+    private TextView status;
 
     FloatingActionButton fab;
 
@@ -32,6 +41,15 @@ public class HomeFragment extends Fragment {
         NetworkHandler.homeFragment = this;
 
         fab = view.findViewById(R.id.createNote);
+        swiper = view.findViewById(R.id.swipe_refresh);
+        status = view.findViewById(R.id.home_status);
+
+        swiper.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                NetworkHandler.GetNotes();
+            }
+        });
 
         main = (MainActivity) getActivity();
 
@@ -48,13 +66,14 @@ public class HomeFragment extends Fragment {
         });
 
         notesView = view.findViewById(R.id.notes_view);
-        SetNoteViewContent();
 
         return view;
     }
 
     void SetNoteViewContent(){
         main = (MainActivity) getActivity();
+
+        status.setVisibility(View.INVISIBLE);
 
         ArrayList<String> noteTitles = new ArrayList<>();
 
@@ -74,5 +93,11 @@ public class HomeFragment extends Fragment {
                 main.newNote = false;
             }
         });
+        swiper.setRefreshing(false);
+    }
+
+    void ReportError(String message){
+        status.setVisibility(View.VISIBLE);
+        status.setText(message);
     }
 }

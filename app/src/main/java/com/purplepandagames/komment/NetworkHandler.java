@@ -1,6 +1,8 @@
 package com.purplepandagames.komment;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -130,9 +132,12 @@ public class NetworkHandler {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, apiURL + "/notes", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                main.notes.clear();
                 try {
                     JSONObject JResultUser = response.getJSONObject("user");
                     JSONArray JNotes = JResultUser.getJSONArray("notes");
+                    int code = response.getInt("code");
+
                     for(int i = 0; i< JNotes.length(); i++) {
                         Note note = new Note();
                         JSONObject currentObject = JNotes.getJSONObject(i);
@@ -141,8 +146,15 @@ public class NetworkHandler {
                         note.id = currentObject.getString("_id");
                         main.notes.add(note);
                     }
-                    homeFragment.SetNoteViewContent();
+                    if(main.notes.size() > 0 && code == 0){
+                        homeFragment.SetNoteViewContent();
+                    }else if(code == 0){
+                        homeFragment.ReportError(main.getResources().getString(R.string.no_notes));
+                    }else{
+                        homeFragment.ReportError(main.getResources().getString(R.string.server_error));
+                    }
                 } catch (JSONException e) {
+                    homeFragment.ReportError(main.getResources().getString(R.string.server_error));
                     e.printStackTrace();
                 }
 
@@ -151,6 +163,7 @@ public class NetworkHandler {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                homeFragment.ReportError(main.getResources().getString(R.string.server_error));
 
             }
         })
@@ -185,7 +198,6 @@ public class NetworkHandler {
                     urlConnection.addRequestProperty("username", main.user.username);
                     urlConnection.addRequestProperty("password", main.user.password);
                     urlConnection.addRequestProperty("Content-Type", "application/json");
-//                    urlConnection.addRequestProperty("Accept", "application/json");
                     urlConnection.setDoOutput(true);
 
                     try(OutputStream os = urlConnection.getOutputStream()){
@@ -222,47 +234,6 @@ public class NetworkHandler {
             super.onPostExecute(s);
             Log.i("JSON", s);
         }
-
-        //        public static MainActivity main;
-//        private static String apiURL = "https://kommentapi.herokuapp.com";
-//
-//
-//        @Override
-//        protected String doInBackground(String... strings) {
-//            String urlString = apiURL + "/notes/" + main.currentNote.id;
-//            Log.i("Info", "Updating note to " + urlString);
-//            URL url = null;
-//            try {
-//                url = new URL(urlString);
-//
-//                try {
-//                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//                    con.setRequestMethod("PUT");
-//                    con.setRequestProperty("username", main.user.username);
-//                    con.setRequestProperty("password", main.user.password);
-//                    con.setRequestProperty("Content-Type", "application/json; utf-8");
-//
-//                    con.setDoOutput(true);
-//                    String jsonBodyString = String.format("{title: %s, content: %s}", main.currentNote.title, main.currentNote.content);
-//                    Log.i("JSON String", jsonBodyString);
-//                    try(OutputStream os = con.getOutputStream()){
-//                        byte[] input = jsonBodyString.getBytes("utf-8");
-//                        os.write(input, 0, input.length);
-//                    }
-//
-//
-//                } catch (IOException e) {
-//                    Log.e("error", e.toString());
-//                    e.printStackTrace();
-//                }
-//
-//            } catch (MalformedURLException e) {
-//                Log.e("error", e.toString());
-//                e.printStackTrace();
-//            }
-//            return null;
-//        }
-
     }
 
     public static class PostNote  extends AsyncTask<String,Void,String> {
@@ -319,47 +290,13 @@ public class NetworkHandler {
             super.onPostExecute(s);
             Log.i("JSON", s);
         }
+    }
 
-        //        public static MainActivity main;
-//        private static String apiURL = "https://kommentapi.herokuapp.com";
-//
-//
-//        @Override
-//        protected String doInBackground(String... strings) {
-//            String urlString = apiURL + "/notes/" + main.currentNote.id;
-//            Log.i("Info", "Updating note to " + urlString);
-//            URL url = null;
-//            try {
-//                url = new URL(urlString);
-//
-//                try {
-//                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//                    con.setRequestMethod("PUT");
-//                    con.setRequestProperty("username", main.user.username);
-//                    con.setRequestProperty("password", main.user.password);
-//                    con.setRequestProperty("Content-Type", "application/json; utf-8");
-//
-//                    con.setDoOutput(true);
-//                    String jsonBodyString = String.format("{title: %s, content: %s}", main.currentNote.title, main.currentNote.content);
-//                    Log.i("JSON String", jsonBodyString);
-//                    try(OutputStream os = con.getOutputStream()){
-//                        byte[] input = jsonBodyString.getBytes("utf-8");
-//                        os.write(input, 0, input.length);
-//                    }
-//
-//
-//                } catch (IOException e) {
-//                    Log.e("error", e.toString());
-//                    e.printStackTrace();
-//                }
-//
-//            } catch (MalformedURLException e) {
-//                Log.e("error", e.toString());
-//                e.printStackTrace();
-//            }
-//            return null;
-//        }
-
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) main.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 
