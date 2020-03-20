@@ -18,16 +18,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -170,7 +164,7 @@ public class NetworkHandler {
         {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap headers = new HashMap();
+                HashMap<String, String> headers = new HashMap<>();
                 headers.put("username", main.user.username);
                 headers.put("password", main.user.password);
                 return headers;
@@ -178,6 +172,51 @@ public class NetworkHandler {
         };
 
         queue.add(jsonObjectRequest);
+    }
+
+    public static void deleteNote(final int index){
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.DELETE, apiURL + "/notes/" + main.notes.get(index).id, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    int code = response.getInt("code");
+                    Log.i("code", "" + code);
+                    if(code == 401){
+                        homeFragment.showError("Unauthorized");
+                    }
+                    else if(code == 404){
+                        homeFragment.showError("Not found");
+                    }
+                    else if(code != 200){
+                        homeFragment.showError("Server error.");
+                    }else {
+                        main.notes.remove(index);
+                        homeFragment.onSuccessDeleting(index);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        })
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("username", main.user.username);
+                headers.put("password", main.user.password);
+                return headers;
+            }
+        };
+
+        queue.add(jsonObjectRequest);
+
     }
 
     public static class UpdateNote  extends AsyncTask<String,Void,String> {

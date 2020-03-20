@@ -6,10 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Dialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -19,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             usernameTextView.setText(String.format("%s %s!", getResources().getString(R.string.welcome), user.username));
             NetworkHandler.GetNotes();
         }
+
     }
 
     @Override
@@ -128,8 +133,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
         }else if(showingNote){
             if(noteChanged && noteViewFragment.noteTitle != null && noteViewFragment.noteTitle.getText().toString().length() > 0  && noteViewFragment.noteTitle != null){
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(R.string.saveDialog)
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle(R.string.save)
+                        .setMessage(R.string.saveDialog)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -155,8 +161,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 }
                                 ShowHome();
                             }
-                        });
-                builder.show();
+                        })
+                        .show();
             }
             else if(newNote){
                 notes.remove(currentIndex);

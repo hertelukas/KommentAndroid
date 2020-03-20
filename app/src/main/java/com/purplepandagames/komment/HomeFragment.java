@@ -1,9 +1,13 @@
 package com.purplepandagames.komment;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +21,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.w3c.dom.Text;
 
@@ -27,10 +37,11 @@ import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
 
-    private ListView notesView;
+    private RecyclerView notesView;
     private MainActivity main;
     private SwipeRefreshLayout swiper;
     private TextView status;
+    private RecyclerViewAdapter adapter;
 
     FloatingActionButton fab;
 
@@ -43,6 +54,7 @@ public class HomeFragment extends Fragment {
         fab = view.findViewById(R.id.createNote);
         swiper = view.findViewById(R.id.swipe_refresh);
         status = view.findViewById(R.id.home_status);
+        notesView = view.findViewById(R.id.notes_view);
 
         swiper.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -51,7 +63,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        main = (MainActivity) getActivity();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,12 +76,68 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        notesView = view.findViewById(R.id.notes_view);
-
         return view;
     }
 
     void SetNoteViewContent(){
+        main = (MainActivity) getActivity();
+
+
+        notesView.setAdapter(getAdapter());
+        notesView.setLayoutManager(new LinearLayoutManager(main));
+
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
+                if(direction == ItemTouchHelper.LEFT){
+                    new MaterialAlertDialogBuilder(main)
+                            .setMessage(R.string.confirm_delete)
+                            .setTitle(R.string.delete)
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    NetworkHandler.deleteNote(viewHolder.getAdapterPosition());
+                                }
+                            })
+                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    notesView.setAdapter(getAdapter());
+                                }
+                            })
+                        .show();
+                }
+                else{
+                    (new Handler()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            notesView.setAdapter(getAdapter());
+                        }
+                    }, 200);
+                }
+            }
+        }).attachToRecyclerView(notesView);
+
+        swiper.setRefreshing(false);
+    }
+
+    void ReportError(String message){
+        status.setVisibility(View.VISIBLE);
+        status.setText(message);
+    }
+
+    void showError(String message){
+        Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    private RecyclerViewAdapter getAdapter(){
         main = (MainActivity) getActivity();
 
         status.setVisibility(View.INVISIBLE);
@@ -82,22 +149,13 @@ public class HomeFragment extends Fragment {
             noteTitles.add(note.title);
         }
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(main, android.R.layout.simple_list_item_1, noteTitles);
+        adapter = new RecyclerViewAdapter(noteTitles,main);
+        return adapter;
+    }
+    void onSuccessDeleting(int index){
+        notesView.removeViewAt(index);
+        SetNoteViewContent();
 
-        notesView.setAdapter(arrayAdapter);
-
-        notesView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                main.showNote(position);
-                main.newNote = false;
-            }
-        });
-        swiper.setRefreshing(false);
     }
 
-    void ReportError(String message){
-        status.setVisibility(View.VISIBLE);
-        status.setText(message);
-    }
 }
