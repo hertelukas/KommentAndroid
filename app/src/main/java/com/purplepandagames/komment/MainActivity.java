@@ -34,6 +34,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
@@ -49,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public Boolean newNote = false;
     public Boolean showingSettings = false;
 
+    public static Boolean confirmDelete;
+
     NoteViewFragment noteViewFragment;
 
     @Override
@@ -62,6 +66,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         sharedPreferences = this.getSharedPreferences("com.purplepandagames.komment", Context.MODE_PRIVATE);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //Load settings
+        confirmDelete = settings.getBoolean("confirm_delete", true);
+
+
         user.username = sharedPreferences.getString("username", "");
         user.password = sharedPreferences.getString("password", "");
 
@@ -102,11 +112,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId()){
             case R.id.nav_home:
                 ShowHome();
-                break;
-
-            case R.id.nav_account:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new AccountFragment()).commit();
                 break;
 
             case R.id.nav_folder:
@@ -193,10 +198,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void Logout(){
-        sharedPreferences.edit().putString("username", "").apply();
-        sharedPreferences.edit().putString("password", "").apply();
 
-        finish();
+        new MaterialAlertDialogBuilder(this)
+                .setMessage(R.string.confirm_logout)
+                .setTitle(R.string.logout)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sharedPreferences.edit().putString("username", "").apply();
+                        sharedPreferences.edit().putString("password", "").apply();
+                        finish();
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
+
     }
 
     @Override

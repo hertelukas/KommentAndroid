@@ -15,7 +15,7 @@
 
     <PreferenceCategory
         android:title="Notes">
-        <SwitchPreferenceCompat
+        <CheckBoxPreference
             android:key="confirm_delete"
             android:title="Confirm delete"
             android:summary="When deleting a note ask always for confirmation." />
@@ -30,12 +30,14 @@
         android:title="@string/account">
         <Preference
             android:title="@string/delete"
-            android:key="account_delete"
             android:summary="Delete your account."/>
         <Preference
             android:title="Change Password"
-            android:key="change_password"
             android:summary="Change the password of your account"/>
+        <Preference
+            android:key="logout"
+            android:title="@string/logout"
+            android:summary="@string/logout_summary"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -100,22 +100,28 @@ public class HomeFragment extends Fragment {
             @Override
             public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
                 if(direction == ItemTouchHelper.LEFT){
-                    new MaterialAlertDialogBuilder(main)
-                            .setMessage(R.string.confirm_delete)
-                            .setTitle(R.string.delete)
-                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    NetworkHandler.deleteNote(viewHolder.getAdapterPosition());
-                                }
-                            })
-                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    notesView.setAdapter(getAdapter());
-                                }
-                            })
-                        .show();
+                    if(main.confirmDelete){
+                        new MaterialAlertDialogBuilder(main)
+                                .setMessage(R.string.confirm_delete)
+                                .setTitle(R.string.delete)
+                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        NetworkHandler.deleteNote(viewHolder.getAdapterPosition());
+                                    }
+                                })
+                                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        notesView.setAdapter(getAdapter());
+                                    }
+                                })
+                                .show();
+                    }
+                    else{
+                        NetworkHandler.deleteNote(viewHolder.getAdapterPosition());
+                    }
+
                 }
                 else{
                     (new Handler()).postDelayed(new Runnable() {
@@ -161,5 +167,4 @@ public class HomeFragment extends Fragment {
         SetNoteViewContent();
 
     }
-
 }
