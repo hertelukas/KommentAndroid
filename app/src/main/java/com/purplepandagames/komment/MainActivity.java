@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public Note currentNote = null;
     public int currentIndex;
     public Boolean noteChanged = false;
-    public static Boolean newNote = false;
+    public Boolean newNote = false;
 
     NoteViewFragment noteViewFragment;
 
@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             showLogin();
         }else{
-
             TextView usernameTextView = headerView.findViewById(R.id.username_header);
             usernameTextView.setText(String.format("%s %s!", getResources().getString(R.string.welcome), user.username));
             NetworkHandler.GetNotes();
@@ -143,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 notes.get(currentIndex).title = noteViewFragment.noteTitle.getText().toString();
                                 currentNote = notes.get(currentIndex);
                                 if(newNote){
-                                    Log.i("Info", "Posting a new note");
                                     NetworkHandler.PostNote postTask = new NetworkHandler.PostNote();
                                     postTask.execute("https://kommentapi.herokuapp.com/notes/");
                                 }else{

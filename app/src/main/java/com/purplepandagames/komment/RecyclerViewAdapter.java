@@ -43,6 +43,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             public void onClick(View v) {
                 MainActivity main = (MainActivity) mContext;
                 main.showNote(position);
+                main.newNote = false;
             }
         });
 

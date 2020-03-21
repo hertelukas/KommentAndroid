@@ -82,7 +82,6 @@ public class HomeFragment extends Fragment {
     void SetNoteViewContent(){
         main = (MainActivity) getActivity();
 
-
         notesView.setAdapter(getAdapter());
         notesView.setLayoutManager(new LinearLayoutManager(main));
 
