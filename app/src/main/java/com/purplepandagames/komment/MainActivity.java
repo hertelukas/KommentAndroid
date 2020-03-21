@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,14 +17,20 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public int currentIndex;
     public Boolean noteChanged = false;
     public Boolean newNote = false;
+    public Boolean showingSettings = false;
 
     NoteViewFragment noteViewFragment;
 
@@ -56,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sharedPreferences = this.getSharedPreferences("com.purplepandagames.komment", Context.MODE_PRIVATE);
         user.username = sharedPreferences.getString("username", "");
         user.password = sharedPreferences.getString("password", "");
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -89,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        this.setTitle(R.string.app_name);
         switch (item.getItemId()){
             case R.id.nav_home:
                 ShowHome();
@@ -124,6 +134,76 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 noteViewFragment).commit();
 
         showingNote = true;
+    }
+
+    public void showRegister(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LoginFragment()).commit();
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        toggle.setDrawerIndicatorEnabled(false);
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new RegisterFragment()).commit();
+    }
+
+    public void showLogin(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LoginFragment()).commit();
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        toggle.setDrawerIndicatorEnabled(false);
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new LoginFragment()).commit();
+    }
+
+    private void ShowHome(){
+        NetworkHandler.GetNotes();
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        toggle.setDrawerIndicatorEnabled(true);
+
+        TextView usernameTextView = headerView.findViewById(R.id.username_header);
+        usernameTextView.setText(String.format("%s %s!", getResources().getString(R.string.welcome), user.username));
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new HomeFragment()).commit();
+        showingNote = false;
+        currentIndex = 1;
+        currentNote = null;
+        Log.i("Info", "Showing home done successfully");
+    }
+
+    private void showSettings(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new SettingsFragment()).commit();
+        this.setTitle(R.string.settings);
+        showingSettings = true;
+    }
+
+    public void LoginUser(){
+        sharedPreferences.edit().putString("username", user.username).apply();
+        sharedPreferences.edit().putString("password", user.password).apply();
+
+        ShowHome();
+        NetworkHandler.GetNotes();
+    }
+
+    public void RegisterUser(){
+        sharedPreferences.edit().putString("username", user.username).apply();
+        sharedPreferences.edit().putString("password", user.password).apply();
+
+        ShowHome();
+    }
+
+    public void Logout(){
+        sharedPreferences.edit().putString("username", "").apply();
+        sharedPreferences.edit().putString("password", "").apply();
+
+        finish();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
     }
 
     @Override
@@ -170,66 +250,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ShowHome();
             }
         }
+        else if(showingSettings){
+            ShowHome();
+            this.setTitle(R.string.app_name);
+            showingSettings = false;
+        }
         else{
             super.onBackPressed();
         }
     }
 
-    public void showRegister(){
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LoginFragment()).commit();
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        toggle.setDrawerIndicatorEnabled(false);
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.settings:
+                showSettings();
+                return true;
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new RegisterFragment()).commit();
-    }
-
-    public void showLogin(){
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new LoginFragment()).commit();
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        toggle.setDrawerIndicatorEnabled(false);
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new LoginFragment()).commit();
-    }
-
-    private void ShowHome(){
-        NetworkHandler.GetNotes();
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        toggle.setDrawerIndicatorEnabled(true);
-
-        TextView usernameTextView = headerView.findViewById(R.id.username_header);
-        usernameTextView.setText(String.format("%s %s!", getResources().getString(R.string.welcome), user.username));
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new HomeFragment()).commit();
-        showingNote = false;
-        currentIndex = 1;
-        currentNote = null;
-        Log.i("Info", "Showing home done successfully");
-    }
-
-    public void LoginUser(){
-        sharedPreferences.edit().putString("username", user.username).apply();
-        sharedPreferences.edit().putString("password", user.password).apply();
-
-        ShowHome();
-        NetworkHandler.GetNotes();
-    }
-
-    public void RegisterUser(){
-        sharedPreferences.edit().putString("username", user.username).apply();
-        sharedPreferences.edit().putString("password", user.password).apply();
-
-        ShowHome();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 
-
-    public void Logout(){
-        sharedPreferences.edit().putString("username", "").apply();
-        sharedPreferences.edit().putString("password", "").apply();
-
-        finish();
-    }
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:title="General">
+        <ListPreference
+            android:key="theme_preference"
+            android:title="@string/theme"
+            android:summary="Choose a theme."
+            android:entries="@array/theme"
+            android:entryValues="@array/theme_data"/>
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="Notes">
+        <SwitchPreferenceCompat
+            android:key="confirm_delete"
+            android:title="Confirm delete"
+            android:summary="When deleting a note ask always for confirmation." />
+        <CheckBoxPreference
+            android:title="Save notes offline"
+            android:key="save_offline"
+            android:summary="Keep a copy of every note offline."/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/account">
+        <Preference
+            android:title="@string/delete"
+            android:key="account_delete"
+            android:summary="Delete your account."/>
+        <Preference
+            android:title="Change Password"
+            android:key="change_password"
+            android:summary="Change the password of your account"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

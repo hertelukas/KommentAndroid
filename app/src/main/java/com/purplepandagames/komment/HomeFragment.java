@@ -45,10 +45,12 @@ public class HomeFragment extends Fragment {
 
     FloatingActionButton fab;
 
+    private  View view;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view =inflater.inflate(R.layout.fragment_home, container, false);
+        view =inflater.inflate(R.layout.fragment_home, container, false);
         NetworkHandler.homeFragment = this;
 
         fab = view.findViewById(R.id.createNote);
@@ -75,6 +77,8 @@ public class HomeFragment extends Fragment {
                 main.showNote(main.notes.size()-1);
             }
         });
+
+        SetNoteViewContent();
 
         return view;
     }
@@ -118,6 +122,7 @@ public class HomeFragment extends Fragment {
                         @Override
                         public void run() {
                             notesView.setAdapter(getAdapter());
+                            Snackbar.make(view, "Not implemented yet", Snackbar.LENGTH_SHORT).show();
                         }
                     }, 200);
                 }
