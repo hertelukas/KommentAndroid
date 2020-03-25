@@ -30,6 +30,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         final CheckBoxPreference confirm_delete = findPreference("confirm_delete");
         final Preference logout = findPreference("logout");
+        final Preference delete = findPreference("delete_account");
 
         if(confirm_delete != null){
             confirm_delete.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -54,7 +55,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     return true;
                 }
             });
+        }
 
+        if(delete != null){
+            delete.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    MainActivity main = (MainActivity) getActivity();
+                    if(main != null){
+                        main.DeleteAccount();
+                    }
+                    return true;
+                }
+            });
         }
 
 

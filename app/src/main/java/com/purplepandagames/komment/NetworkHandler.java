@@ -47,9 +47,12 @@ public class NetworkHandler {
             public void onResponse(JSONObject response) {
                 try {
                     int code = response.getInt("code");
+                    JSONObject user = response.getJSONObject("user");
+                    String id = user.getString("_id");
                     Log.i("code", "" + code);
                     if(code == 104){
                         main.LoginUser();
+                        main.user.id = id;
                     }
                     else if(code == 401){
                         loginFragment.LoginFailed("Wrong password or username");
@@ -217,6 +220,47 @@ public class NetworkHandler {
 
         queue.add(jsonObjectRequest);
 
+    }
+
+    public static void deleteAccount(){
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.DELETE, apiURL + "/users/" + main.user.id, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    int code = response.getInt("code");
+                    Log.i("code", "" + code);
+                    if(code == 401){
+                        homeFragment.showError("Unauthorized");
+                    }
+                    else if(code == 404){
+                        homeFragment.showError("Not found");
+                    }
+                    else if(code != 200){
+                        homeFragment.showError("Server error.");
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        })
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("username", main.user.username);
+                headers.put("password", main.user.password);
+                return headers;
+            }
+        };
+
+        queue.add(jsonObjectRequest);
     }
 
     public static class UpdateNote  extends AsyncTask<String,Void,String> {

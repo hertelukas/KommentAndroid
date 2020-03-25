@@ -220,6 +220,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public void DeleteAccount(){
+        new MaterialAlertDialogBuilder(this)
+                .setMessage(R.string.delete_account_summary)
+                .setTitle(R.string.delete_account)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        NetworkHandler.deleteAccount();
+                        sharedPreferences.edit().putString("username", "").apply();
+                        sharedPreferences.edit().putString("password", "").apply();
+                        finish();
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

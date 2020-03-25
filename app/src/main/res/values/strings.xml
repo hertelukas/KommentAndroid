@@ -37,4 +37,6 @@
     <string name="theme">Theme</string>
     <string name="confirm_logout">Logout of your account. Your notes won\'t be available offline.</string>
     <string name="logout_summary">Logging you out.</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_summary">Deleting your account will delete all your notes and all your information. This can not be undone.</string>
 </resources>
