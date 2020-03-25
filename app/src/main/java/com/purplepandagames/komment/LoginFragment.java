@@ -21,17 +21,14 @@ public class LoginFragment extends Fragment {
     private EditText password;
     private TextView warningText;
 
-    private Button loginButton;
-    private Button registerButton;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.fragment_login, container, false);
         username = view.findViewById(R.id.nameLoginInput);
         password = view.findViewById(R.id.passwordLoginInput);
-        loginButton = view.findViewById(R.id.loginButton);
-        registerButton = view.findViewById(R.id.registerButton);
+        Button loginButton = view.findViewById(R.id.loginButton);
+        Button registerButton = view.findViewById(R.id.registerButton);
         warningText = view.findViewById(R.id.warningText);
 
         NetworkHandler.loginFragment = this;
@@ -75,8 +72,10 @@ public class LoginFragment extends Fragment {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                main.user.username = username.getText().toString();
-                main.user.password = password.getText().toString();
+                if (main != null) {
+                    main.user.username = username.getText().toString();
+                    main.user.password = password.getText().toString();
+                }
                 NetworkHandler.Login();
             }
 
@@ -85,7 +84,9 @@ public class LoginFragment extends Fragment {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                main.showRegister();
+                if (main != null) {
+                    main.showRegister();
+                }
             }
         });
 
@@ -93,7 +94,7 @@ public class LoginFragment extends Fragment {
         return  view;
     }
 
-    public void LoginFailed(String reason){
+    void LoginFailed(String reason){
         warningText.setText(reason);
     }
 

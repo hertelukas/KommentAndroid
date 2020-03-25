@@ -47,14 +47,16 @@ public class NetworkHandler {
             public void onResponse(JSONObject response) {
                 try {
                     int code = response.getInt("code");
-                    JSONObject user = response.getJSONObject("user");
-                    String id = user.getString("_id");
+
                     Log.i("code", "" + code);
                     if(code == 104){
+                        JSONObject user = response.getJSONObject("user");
+                        String id = user.getString("_id");
                         main.LoginUser();
                         main.user.id = id;
                     }
                     else if(code == 401){
+                        Log.i("LOGIN", "Unauthenticated");
                         loginFragment.LoginFailed("Wrong password or username");
                     }
                     else{
@@ -69,7 +71,7 @@ public class NetworkHandler {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                loginFragment.LoginFailed("Login failed. Try again later.");
             }
         })
         {

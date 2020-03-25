@@ -175,6 +175,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.i("Info", "Showing home done successfully");
     }
 
+    private void ShowLogin(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new LoginFragment()).commit();
+    }
+
     private void showSettings(){
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 new SettingsFragment()).commit();
@@ -292,13 +297,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             else{
                 ShowHome();
             }
-        }
-        else if(showingSettings){
-            ShowHome();
+        }else if(showingSettings){
+            Log.i("USER", "Placeholder");
             this.setTitle(R.string.app_name);
             showingSettings = false;
-        }
-        else{
+            if(user.username != null && user.username.length() > 1){
+                ShowHome();
+            }
+            else{
+                ShowLogin();
+            }
+        }else{
             super.onBackPressed();
         }
     }
