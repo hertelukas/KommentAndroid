@@ -56,7 +56,6 @@ public class HomeFragment extends Fragment {
 
         fab = view.findViewById(R.id.createNote);
         swiper = view.findViewById(R.id.swipe_refresh);
-        status = view.findViewById(R.id.home_status);
         notesView = view.findViewById(R.id.notes_view);
 
         swiper.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -91,8 +90,6 @@ public class HomeFragment extends Fragment {
 
         notesView.setAdapter(getAdapter());
         notesView.setLayoutManager(new LinearLayoutManager(main));
-
-
 
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
@@ -138,7 +135,6 @@ public class HomeFragment extends Fragment {
                         handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                Log.i("delete" ,"deltenote" + delete);
                                 if(delete){
                                     NetworkHandler.deleteNote(viewHolder.getAdapterPosition());
                                 }
@@ -163,8 +159,8 @@ public class HomeFragment extends Fragment {
     }
 
     void ReportError(String message){
-        status.setVisibility(View.VISIBLE);
-        status.setText(message);
+        Snackbar.make(view, message, Snackbar.LENGTH_LONG).show();
+        swiper.setRefreshing(false);
     }
 
     void showError(String message){
@@ -173,8 +169,6 @@ public class HomeFragment extends Fragment {
 
     private RecyclerViewAdapter getAdapter(){
         main = (MainActivity) getActivity();
-
-        status.setVisibility(View.INVISIBLE);
 
         ArrayList<String> noteTitles = new ArrayList<>();
 
