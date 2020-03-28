@@ -41,4 +41,5 @@
     <string name="delete_account_summary">Deleting your account will delete all your notes and all your information. This can not be undone.</string>
     <string name="deleted_note">Deleted note</string>
     <string name="undo">Undo</string>
+    <string name="make_public">Made the note public</string>
 </resources>

@@ -133,8 +133,12 @@ public class NetworkHandler {
             public void onResponse(JSONObject response) {
                 main.notes.clear();
                 try {
+                    Log.i("Response", response.toString());
                     JSONObject JResultUser = response.getJSONObject("user");
+                    Log.i("Result parsed" , JResultUser.toString());
                     JSONArray JNotes = JResultUser.getJSONArray("notes");
+                    Log.i("Result parsed" , JNotes.toString());
+
                     int code = response.getInt("code");
 
                     for(int i = 0; i< JNotes.length(); i++) {
@@ -150,9 +154,11 @@ public class NetworkHandler {
                     }else if(code == 0){
                         homeFragment.ReportError(main.getResources().getString(R.string.no_notes));
                     }else{
+                        Log.i("Server Error", "Code " + code);
                         homeFragment.ReportError(main.getResources().getString(R.string.server_error));
                     }
                 } catch (JSONException e) {
+                    Log.i("JSON Error", e.getMessage());
                     homeFragment.ReportError(main.getResources().getString(R.string.server_error));
                     e.printStackTrace();
                 }
@@ -162,6 +168,7 @@ public class NetworkHandler {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Log.i("Server Error", error.getMessage());
                 homeFragment.ReportError(main.getResources().getString(R.string.server_error));
 
             }
@@ -263,6 +270,63 @@ public class NetworkHandler {
         };
 
         queue.add(jsonObjectRequest);
+    }
+
+    public static class makePublic  extends AsyncTask<String,Void,String> {
+
+        @Override
+        protected String doInBackground(String... urls) {
+            String result = "";
+            URL url;
+            HttpURLConnection urlConnection = null;
+            JSONObject body = new JSONObject();
+            try {
+                body.put("title", urls[1]);
+                body.put("content", urls[2]);
+                body.put("public", "true");
+                try {
+                    url = new URL(urls[0]);
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("PUT");
+                    urlConnection.addRequestProperty("username", main.user.username);
+                    urlConnection.addRequestProperty("password", main.user.password);
+                    urlConnection.addRequestProperty("Content-Type", "application/json");
+                    urlConnection.setDoOutput(true);
+
+                    try(OutputStream os = urlConnection.getOutputStream()){
+                        Log.i("Body String", body.toString());
+                        byte[] input = body.toString().getBytes("utf-8");
+                        Log.i("Body", input.toString());
+
+                        os.write(input, 0, input.length);
+                    }
+
+                    InputStream in = urlConnection.getInputStream();
+                    InputStreamReader reader = new InputStreamReader(in);
+                    int data = reader.read();
+                    while (data != -1){
+                        char current = (char) data;
+                        result += current;
+                        data += current;
+                        data = reader.read();
+                    }
+                    return result;
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    return null;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return  null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Log.i("JSON", s);
+        }
     }
 
     public static class UpdateNote  extends AsyncTask<String,Void,String> {

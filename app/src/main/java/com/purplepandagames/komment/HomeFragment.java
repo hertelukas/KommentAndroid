@@ -84,6 +84,7 @@ public class HomeFragment extends Fragment {
     }
 
     boolean delete = true;
+    boolean makePublic = true;
 
     void SetNoteViewContent(){
         main = (MainActivity) getActivity();
@@ -138,19 +139,35 @@ public class HomeFragment extends Fragment {
                                 if(delete){
                                     NetworkHandler.deleteNote(viewHolder.getAdapterPosition());
                                 }
+
                             }
                         }, 2750);
                     }
 
                 }
                 else{
-                    (new Handler()).postDelayed(new Runnable() {
+                    makePublic = true;
+                    final Note note = main.notes.get(viewHolder.getAdapterPosition());
+
+                    Snackbar.make(view, R.string.make_public, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.undo, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    makePublic = false;
+                                }
+                            }).show();
+                    notesView.setAdapter(getAdapter());
+
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            notesView.setAdapter(getAdapter());
-                            Snackbar.make(view, "Not implemented yet", Snackbar.LENGTH_SHORT).show();
+                            if(makePublic){
+                                NetworkHandler.makePublic updateTask = new NetworkHandler.makePublic();
+                                updateTask.execute("https://kommentapi.herokuapp.com/notes/" + note.id, note.title, note.content);
+                            }
                         }
-                    }, 200);
+                    }, 2750);
                 }
             }
         }).attachToRecyclerView(notesView);
