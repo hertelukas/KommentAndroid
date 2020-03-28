@@ -139,7 +139,7 @@ public class NetworkHandler {
                     if(code == 0){
                         Note note = new Note();
                         note.title = JNote.getString("title");
-                        note.content = JNote.getString("title");
+                        note.content = JNote.getString("content");
                         note.id = JNote.getString("_id");
                         main.showNote(note);
                     }else if(code == 0){
