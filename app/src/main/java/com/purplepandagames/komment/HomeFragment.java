@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,11 +84,15 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    boolean delete = true;
+
     void SetNoteViewContent(){
         main = (MainActivity) getActivity();
 
         notesView.setAdapter(getAdapter());
         notesView.setLayoutManager(new LinearLayoutManager(main));
+
+
 
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
@@ -100,6 +105,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
                 if(direction == ItemTouchHelper.LEFT){
+                    delete = true;
                     if(main.confirmDelete){
                         new MaterialAlertDialogBuilder(main)
                                 .setMessage(R.string.confirm_delete)
@@ -119,7 +125,25 @@ public class HomeFragment extends Fragment {
                                 .show();
                     }
                     else{
-                        NetworkHandler.deleteNote(viewHolder.getAdapterPosition());
+                        Snackbar.make(view, R.string.deleted_note, Snackbar.LENGTH_LONG)
+                                .setAction(R.string.undo, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        delete = false;
+                                        notesView.setAdapter(getAdapter());
+                                    }
+                                }).show();
+
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.i("delete" ,"deltenote" + delete);
+                                if(delete){
+                                    NetworkHandler.deleteNote(viewHolder.getAdapterPosition());
+                                }
+                            }
+                        }, 2750);
                     }
 
                 }

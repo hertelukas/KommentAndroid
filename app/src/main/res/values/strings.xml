@@ -39,4 +39,6 @@
     <string name="logout_summary">Logging you out.</string>
     <string name="delete_account">Delete Account</string>
     <string name="delete_account_summary">Deleting your account will delete all your notes and all your information. This can not be undone.</string>
+    <string name="deleted_note">Deleted note</string>
+    <string name="undo">Undo</string>
 </resources>
