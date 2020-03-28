@@ -3,6 +3,7 @@ package com.purplepandagames.komment;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -133,6 +134,7 @@ public class HomeFragment extends Fragment {
                                 }).show();
 
                         Handler handler = new Handler();
+
                         handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -148,6 +150,13 @@ public class HomeFragment extends Fragment {
                 else{
                     makePublic = true;
                     final Note note = main.notes.get(viewHolder.getAdapterPosition());
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text) + " https://kommentapi.herokuapp.com/notes/" + note.id);
+                    sendIntent.setType("text/plain");
+
+                    Intent shareIntent = Intent.createChooser(sendIntent, null);
+                    startActivity(shareIntent);
 
                     Snackbar.make(view, R.string.make_public, Snackbar.LENGTH_LONG)
                             .setAction(R.string.undo, new View.OnClickListener() {
@@ -156,9 +165,15 @@ public class HomeFragment extends Fragment {
                                     makePublic = false;
                                 }
                             }).show();
-                    notesView.setAdapter(getAdapter());
 
                     Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            notesView.setAdapter(getAdapter());
+
+                        }
+                    },200);
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
