@@ -16,8 +16,10 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -40,7 +42,7 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     public User user = new User();
-    public List<Note> notes;
+    public List<Note> notes = new ArrayList<>();
     SharedPreferences sharedPreferences;
     ActionBarDrawerToggle toggle;
     View headerView;
@@ -60,10 +62,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        notes = new ArrayList<Note>();
+        Intent intent = getIntent();
+
         NetworkHandler.main = this;
         NetworkHandler.Initialize();
-
 
         sharedPreferences = this.getSharedPreferences("com.purplepandagames.komment", Context.MODE_PRIVATE);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -101,9 +103,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }else{
             TextView usernameTextView = headerView.findViewById(R.id.username_header);
             usernameTextView.setText(String.format("%s %s!", getResources().getString(R.string.welcome), user.username));
-            NetworkHandler.GetNotes();
+            //Handle link clicks
+            String action = intent.getAction();
+            Uri data = intent.getData();
+            if(data != null){
+                newNote = false;
+                NetworkHandler.GetNote(data.toString());
+            }
+            else{
+                NetworkHandler.GetNotes();
+            }
         }
-
     }
 
     @Override
@@ -131,6 +141,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void showNote(int index){
         currentNote = notes.get(index);
         currentIndex = index;
+        showingNote = true;
+
+        noteViewFragment = new NoteViewFragment();
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                noteViewFragment).commit();
+
+        showingNote = true;
+    }
+
+    public void showNote(Note note){
+        currentNote = note;
+        currentIndex = -1;
         showingNote = true;
 
         noteViewFragment = new NoteViewFragment();
@@ -266,9 +289,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                notes.get(currentIndex).content = noteViewFragment.noteContent.getText().toString();
-                                notes.get(currentIndex).title = noteViewFragment.noteTitle.getText().toString();
-                                currentNote = notes.get(currentIndex);
+                                if(currentIndex != -1){
+                                    notes.get(currentIndex).content = noteViewFragment.noteContent.getText().toString();
+                                    notes.get(currentIndex).title = noteViewFragment.noteTitle.getText().toString();
+                                    currentNote = notes.get(currentIndex);
+                                }
+                                else{
+                                    currentNote.content = noteViewFragment.noteContent.getText().toString();
+                                    currentNote.title = noteViewFragment.noteTitle.getText().toString();
+                                }
                                 if(newNote){
                                     NetworkHandler.PostNote postTask = new NetworkHandler.PostNote();
                                     postTask.execute("https://kommentapi.herokuapp.com/notes/");

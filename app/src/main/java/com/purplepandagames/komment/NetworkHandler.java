@@ -126,6 +126,57 @@ public class NetworkHandler {
 
     }
 
+    public static void GetNote(String url){
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                main.notes.clear();
+                try {
+                    Log.i("Response", response.toString());
+                    JSONObject JNote = response.getJSONObject("note");
+                    //int code = response.getInt("code");
+                    int code = 0;
+                    if(code == 0){
+                        Note note = new Note();
+                        note.title = JNote.getString("title");
+                        note.content = JNote.getString("title");
+                        note.id = JNote.getString("_id");
+                        main.showNote(note);
+                    }else if(code == 0){
+                        homeFragment.ReportError(main.getResources().getString(R.string.no_notes));
+                    }else{
+                        Log.i("Server Error", "Code " + code);
+                        homeFragment.ReportError(main.getResources().getString(R.string.server_error));
+                    }
+                } catch (JSONException e) {
+                    Log.i("JSON Error", e.getMessage());
+                    homeFragment.ReportError(main.getResources().getString(R.string.server_error));
+                    e.printStackTrace();
+                }
+
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i("Server Error", error.getMessage());
+                homeFragment.ReportError(main.getResources().getString(R.string.server_error));
+
+            }
+        })
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("username", main.user.username);
+                headers.put("password", main.user.password);
+                return headers;
+            }
+        };
+
+        queue.add(jsonObjectRequest);
+    }
+
     public static void GetNotes() {
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, apiURL + "/notes", null, new Response.Listener<JSONObject>() {
@@ -133,11 +184,8 @@ public class NetworkHandler {
             public void onResponse(JSONObject response) {
                 main.notes.clear();
                 try {
-                    Log.i("Response", response.toString());
                     JSONObject JResultUser = response.getJSONObject("user");
-                    Log.i("Result parsed" , JResultUser.toString());
                     JSONArray JNotes = JResultUser.getJSONArray("notes");
-                    Log.i("Result parsed" , JNotes.toString());
 
                     int code = response.getInt("code");
 
