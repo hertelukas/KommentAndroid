@@ -43,4 +43,7 @@
     <string name="undo">Undo</string>
     <string name="make_public">Made the note public</string>
     <string name="share_text">Share notes with Komment. \nLet\'s collaborate: </string>
+    <string name="shared_notes">Shared Notes</string>
+    <string name="note_already_public">This note is already public</string>
+    <string name="make_private">Make private</string>
 </resources>

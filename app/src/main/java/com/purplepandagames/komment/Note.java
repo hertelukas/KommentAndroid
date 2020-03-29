@@ -4,4 +4,5 @@ class Note {
     String title;
     String content;
     String id;
+    Boolean isPublic;
 }

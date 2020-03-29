@@ -11,6 +11,10 @@
             android:id="@+id/nav_folder"
             android:icon="@drawable/ic_folder"
             android:title="@string/folder" />
+        <item
+            android:title="@string/shared_notes"
+            android:icon="@drawable/ic_share"
+            android:id="@+id/nav_shared_notes"/>
     </group>
 
     <item android:title="@string/account">

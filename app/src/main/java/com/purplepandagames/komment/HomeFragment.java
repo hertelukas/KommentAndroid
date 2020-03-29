@@ -84,8 +84,11 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    boolean delete = true;
-    boolean makePublic = true;
+    private boolean delete = true;
+    private boolean makePublic = true;
+
+    private boolean localIsPublic;
+
 
     void SetNoteViewContent(){
         main = (MainActivity) getActivity();
@@ -149,7 +152,8 @@ public class HomeFragment extends Fragment {
                 }
                 else{
                     makePublic = true;
-                    final Note note = main.notes.get(viewHolder.getAdapterPosition());
+                    final int index = viewHolder.getAdapterPosition();
+                    final Note note = main.notes.get(index);
                     Intent sendIntent = new Intent();
                     sendIntent.setAction(Intent.ACTION_SEND);
                     sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text) + " https://kommentapi.herokuapp.com/notes/" + note.id);
@@ -158,31 +162,55 @@ public class HomeFragment extends Fragment {
                     Intent shareIntent = Intent.createChooser(sendIntent, null);
                     startActivity(shareIntent);
 
-                    Snackbar.make(view, R.string.make_public, Snackbar.LENGTH_LONG)
-                            .setAction(R.string.undo, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    makePublic = false;
-                                }
-                            }).show();
 
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            notesView.setAdapter(getAdapter());
+                    if(!note.isPublic) {
+                        Snackbar.make(view, R.string.make_public, Snackbar.LENGTH_LONG)
+                                .setAction(R.string.undo, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        makePublic = false;
+                                    }
+                                }).show();
 
-                        }
-                    },200);
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(makePublic){
-                                NetworkHandler.makePublic updateTask = new NetworkHandler.makePublic();
-                                updateTask.execute("https://kommentapi.herokuapp.com/notes/" + note.id, note.title, note.content);
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                notesView.setAdapter(getAdapter());
+
                             }
-                        }
-                    }, 2750);
+                        }, 200);
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (makePublic) {
+
+                                    NetworkHandler.makePublic updateTask = new NetworkHandler.makePublic();
+                                    updateTask.execute("https://kommentapi.herokuapp.com/notes/" + note.id, note.title, note.content, "true");
+                                    localIsPublic = true;
+                                }
+                            }
+                        }, 2750);
+                    }else {
+                        Snackbar.make(view, R.string.note_already_public, Snackbar.LENGTH_LONG)
+                                .setAction(R.string.make_private, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        NetworkHandler.makePublic updateTask = new NetworkHandler.makePublic();
+                                        updateTask.execute("https://kommentapi.herokuapp.com/notes/" + note.id, note.title, note.content, "false");
+                                        localIsPublic = false;
+                                    }
+                                }).show();
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                notesView.setAdapter(getAdapter());
+                                main.notes.get(index).isPublic = localIsPublic;
+
+                            }
+                        }, 200);
+                    }
                 }
             }
         }).attachToRecyclerView(notesView);

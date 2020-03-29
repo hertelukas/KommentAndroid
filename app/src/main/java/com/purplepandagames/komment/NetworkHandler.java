@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -142,6 +143,10 @@ public class NetworkHandler {
                         note.content = JNote.getString("content");
                         note.id = JNote.getString("_id");
                         main.showNote(note);
+                        if(!main.sharedNotesId.contains(note.id)){
+                            main.sharedNotesId += ", " + note.id;
+                            main.SaveShared();
+                        }
                     }else if(code == 0){
                         homeFragment.ReportError(main.getResources().getString(R.string.no_notes));
                     }else{
@@ -195,6 +200,7 @@ public class NetworkHandler {
                         note.title = currentObject.getString("title");
                         note.content = currentObject.getString("content");
                         note.id = currentObject.getString("_id");
+                        note.isPublic = currentObject.getBoolean("public");
                         main.notes.add(note);
                     }
                     if(main.notes.size() > 0 && code == 0){
@@ -331,7 +337,7 @@ public class NetworkHandler {
             try {
                 body.put("title", urls[1]);
                 body.put("content", urls[2]);
-                body.put("public", "true");
+                body.put("public", urls[3]);
                 try {
                     url = new URL(urls[0]);
                     urlConnection = (HttpURLConnection) url.openConnection();

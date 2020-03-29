@@ -35,14 +35,18 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private static final String TAG = "MAIN";
     private DrawerLayout drawer;
     public User user = new User();
     public List<Note> notes = new ArrayList<>();
+    public String sharedNotesId;
+    public List <Note> sharedNotes = new ArrayList<>();
     SharedPreferences sharedPreferences;
     ActionBarDrawerToggle toggle;
     View headerView;
@@ -76,6 +80,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         user.username = sharedPreferences.getString("username", "");
         user.password = sharedPreferences.getString("password", "");
+
+        sharedNotesId = sharedPreferences.getString("sharedNotes", "");
+        Log.i(TAG, "onCreate: " + sharedNotesId);
+
+        //Todo this doesn't work. showing only empty ids
+        if(sharedNotesId.length() > 6){
+            List<String> noteIds = Arrays.asList(sharedNotesId.split("\\s*, \\s*"));
+
+            for (String id: noteIds) {
+                Log.i("LOADING SHARED", "onCreate: getting" + id);
+                NetworkHandler.GetNote("https://kommentapi.herokuapp.com/notes/" + id);
+            }
+
+        }
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -127,6 +145,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_folder:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new FolderFragment()).commit();
+                break;
+
+            case R.id.nav_shared_notes:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new SharedFragment()).commit();
                 break;
 
             case R.id.nav_logout:
@@ -268,6 +291,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 })
                 .show();
+    }
+
+    public void SaveShared(){
+
+        Log.i(TAG, "SAVING: " + sharedNotesId);
+        sharedPreferences.edit().putString("sharedNotes", sharedNotesId);
     }
 
     @Override
