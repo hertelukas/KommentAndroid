@@ -46,4 +46,5 @@
     <string name="shared_notes">Shared Notes</string>
     <string name="note_already_public">This note is already public</string>
     <string name="make_private">Make private</string>
+    <string name="note_not_public">This note isn\'t public.</string>
 </resources>

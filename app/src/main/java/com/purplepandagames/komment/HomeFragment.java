@@ -37,6 +37,8 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
+import static com.android.volley.VolleyLog.TAG;
+
 public class HomeFragment extends Fragment {
 
     private RecyclerView notesView;
@@ -229,6 +231,8 @@ public class HomeFragment extends Fragment {
 
     private RecyclerViewAdapter getAdapter(){
         main = (MainActivity) getActivity();
+
+        Log.i(TAG, "getAdapter: " + main.notes.size());
 
         ArrayList<String> noteTitles = new ArrayList<>();
 

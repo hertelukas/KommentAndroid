@@ -27,7 +27,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class NetworkHandler {
+    private static final String TAG = "NETWORK";
+
     private static String apiURL = "https://kommentapi.herokuapp.com";
     private static RequestQueue queue;
 
@@ -35,6 +38,7 @@ public class NetworkHandler {
     static LoginFragment loginFragment;
     static HomeFragment homeFragment;
     static RegisterFragment registerFragment;
+
 
 
 
@@ -131,30 +135,28 @@ public class NetworkHandler {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                main.notes.clear();
                 try {
                     Log.i("Response", response.toString());
                     JSONObject JNote = response.getJSONObject("note");
-                    //int code = response.getInt("code");
-                    int code = 0;
+                    int code = response.getInt("code");
                     if(code == 0){
                         Note note = new Note();
                         note.title = JNote.getString("title");
                         note.content = JNote.getString("content");
                         note.id = JNote.getString("_id");
-                        main.showNote(note);
+                        //main.showNote(note);
                         if(!main.sharedNotesId.contains(note.id)){
-                            main.sharedNotesId += ", " + note.id;
+                            main.sharedNotesId += note.id + ",";
                             main.SaveShared();
                         }
-                    }else if(code == 0){
-                        homeFragment.ReportError(main.getResources().getString(R.string.no_notes));
+                    }else if(code == 401){
+                        homeFragment.ReportError(main.getResources().getString(R.string.note_not_public));
                     }else{
                         Log.i("Server Error", "Code " + code);
                         homeFragment.ReportError(main.getResources().getString(R.string.server_error));
                     }
                 } catch (JSONException e) {
-                    Log.i("JSON Error", e.getMessage());
+                    Log.i("JSON Error at GET NOTE", e.getMessage());
                     homeFragment.ReportError(main.getResources().getString(R.string.server_error));
                     e.printStackTrace();
                 }
@@ -164,7 +166,7 @@ public class NetworkHandler {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.i("Server Error", error.getMessage());
+                Log.i("Server Error @ GET NOTE", error.getMessage());
                 homeFragment.ReportError(main.getResources().getString(R.string.server_error));
 
             }
@@ -187,6 +189,9 @@ public class NetworkHandler {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, apiURL + "/notes", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.i(TAG, "onResponse: " + response);
+
+                main.notes = new ArrayList<>();
                 main.notes.clear();
                 try {
                     JSONObject JResultUser = response.getJSONObject("user");
@@ -204,6 +209,7 @@ public class NetworkHandler {
                         main.notes.add(note);
                     }
                     if(main.notes.size() > 0 && code == 0){
+                        Log.i(TAG, "onResponse: " + main.notes.size());
                         homeFragment.SetNoteViewContent();
                     }else if(code == 0){
                         homeFragment.ReportError(main.getResources().getString(R.string.no_notes));
@@ -212,17 +218,15 @@ public class NetworkHandler {
                         homeFragment.ReportError(main.getResources().getString(R.string.server_error));
                     }
                 } catch (JSONException e) {
-                    Log.i("JSON Error", e.getMessage());
+                    Log.i("JSON Error in GET NOTES", e.getMessage());
                     homeFragment.ReportError(main.getResources().getString(R.string.server_error));
                     e.printStackTrace();
                 }
-
-
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.i("Server Error", error.getMessage());
+                Log.i("Server E @ GET NOTES", error.getMessage());
                 homeFragment.ReportError(main.getResources().getString(R.string.server_error));
 
             }

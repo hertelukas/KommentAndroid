@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sharedPreferences = this.getSharedPreferences("com.purplepandagames.komment", Context.MODE_PRIVATE);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 
+
         //Load settings
         confirmDelete = settings.getBoolean("confirm_delete", true);
 
@@ -81,19 +82,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         user.username = sharedPreferences.getString("username", "");
         user.password = sharedPreferences.getString("password", "");
 
-        sharedNotesId = sharedPreferences.getString("sharedNotes", "");
-        Log.i(TAG, "onCreate: " + sharedNotesId);
+//        sharedNotesId = sharedPreferences.getString("sharedNotes", "");
 
-        //Todo this doesn't work. showing only empty ids
-        if(sharedNotesId.length() > 6){
-            List<String> noteIds = Arrays.asList(sharedNotesId.split("\\s*, \\s*"));
 
-            for (String id: noteIds) {
-                Log.i("LOADING SHARED", "onCreate: getting" + id);
-                NetworkHandler.GetNote("https://kommentapi.herokuapp.com/notes/" + id);
-            }
-
-        }
+//        if(sharedNotesId.length() > 6){
+//            List<String> noteIds = Arrays.asList(sharedNotesId.split("\\s*, \\s*"));
+//
+//            for (String id: noteIds) {
+//                id = id.substring(0, id.indexOf(","));
+//                Log.i("LOADING SHARED", "onCreate: getting" + id);
+//                NetworkHandler.GetNote("https://kommentapi.herokuapp.com/notes/" + id);
+//            }
+//        }
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -125,10 +125,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String action = intent.getAction();
             Uri data = intent.getData();
             if(data != null){
+                Log.i(TAG, "onCreate: Started with a link");
                 newNote = false;
                 NetworkHandler.GetNote(data.toString());
             }
             else{
+                Log.i(TAG, "onCreate: Getting notes now");
                 NetworkHandler.GetNotes();
             }
         }
@@ -258,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialog, int which) {
                         sharedPreferences.edit().putString("username", "").apply();
                         sharedPreferences.edit().putString("password", "").apply();
+                        sharedPreferences.edit().putString("sharedNotes", "").apply();
                         finish();
                     }
                 })
@@ -296,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void SaveShared(){
 
         Log.i(TAG, "SAVING: " + sharedNotesId);
-        sharedPreferences.edit().putString("sharedNotes", sharedNotesId);
+        sharedPreferences.edit().putString("sharedNotes", sharedNotesId).apply();
     }
 
     @Override
