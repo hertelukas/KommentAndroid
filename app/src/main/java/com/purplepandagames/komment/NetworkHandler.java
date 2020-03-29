@@ -40,8 +40,6 @@ public class NetworkHandler {
     static RegisterFragment registerFragment;
 
 
-
-
     public static void Initialize(){
         queue = Volley.newRequestQueue(main);
     }
@@ -135,8 +133,8 @@ public class NetworkHandler {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                main.sharedNotes.clear();
                 try {
-                    Log.i("Response", response.toString());
                     JSONObject JNote = response.getJSONObject("note");
                     int code = response.getInt("code");
                     if(code == 0){
@@ -144,11 +142,14 @@ public class NetworkHandler {
                         note.title = JNote.getString("title");
                         note.content = JNote.getString("content");
                         note.id = JNote.getString("_id");
-                        //main.showNote(note);
+                        if(main.linkClick)
+                            main.showNote(note);
                         if(!main.sharedNotesId.contains(note.id)){
                             main.sharedNotesId += note.id + ",";
                             main.SaveShared();
                         }
+                        main.sharedNotes.add(note);
+
                     }else if(code == 401){
                         homeFragment.ReportError(main.getResources().getString(R.string.note_not_public));
                     }else{

@@ -56,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public Boolean noteChanged = false;
     public Boolean newNote = false;
     public Boolean showingSettings = false;
+    public Boolean linkClick = false;
+    public Boolean sharedNote = false;
 
     public static Boolean confirmDelete;
 
@@ -82,18 +84,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         user.username = sharedPreferences.getString("username", "");
         user.password = sharedPreferences.getString("password", "");
 
-//        sharedNotesId = sharedPreferences.getString("sharedNotes", "");
+        sharedNotesId = sharedPreferences.getString("sharedNotes", "");
 
 
-//        if(sharedNotesId.length() > 6){
-//            List<String> noteIds = Arrays.asList(sharedNotesId.split("\\s*, \\s*"));
-//
-//            for (String id: noteIds) {
-//                id = id.substring(0, id.indexOf(","));
-//                Log.i("LOADING SHARED", "onCreate: getting" + id);
-//                NetworkHandler.GetNote("https://kommentapi.herokuapp.com/notes/" + id);
-//            }
-//        }
+        if(sharedNotesId.length() > 6){
+            String[] noteIds = sharedNotesId.split("\\s*, \\s*");
+
+            for (String id: noteIds) {
+                id = id.substring(0, id.indexOf(","));
+                Log.i("LOADING SHARED", "onCreate: getting" + id);
+                linkClick = false;
+                NetworkHandler.GetNote("https://kommentapi.herokuapp.com/notes/" + id);
+            }
+        }
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -127,9 +130,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if(data != null){
                 Log.i(TAG, "onCreate: Started with a link");
                 newNote = false;
+                linkClick = true;
                 NetworkHandler.GetNote(data.toString());
             }
             else{
+                linkClick = false;
                 Log.i(TAG, "onCreate: Getting notes now");
                 NetworkHandler.GetNotes();
             }
@@ -173,13 +178,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                 noteViewFragment).commit();
 
+    }
+
+    public void showSharedNote(int index){
+        currentNote = sharedNotes.get(index);
+        currentIndex = index;
+        Log.i(TAG, "showSharedNote: " + currentNote.title + currentNote.id);
         showingNote = true;
+        sharedNote = true;
+
+        noteViewFragment = new NoteViewFragment();
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                noteViewFragment).commit();
+
     }
 
     public void showNote(Note note){
         currentNote = note;
         currentIndex = -1;
         showingNote = true;
+        sharedNote = true;
 
         noteViewFragment = new NoteViewFragment();
 
@@ -221,6 +240,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentIndex = 1;
         currentNote = null;
         Log.i("Info", "Showing home done successfully");
+    }
+
+    private  void ShowShared(){
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                new SharedFragment()).commit();
     }
 
     private void ShowLogin(){
@@ -322,9 +346,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if(currentIndex != -1){
-                                    notes.get(currentIndex).content = noteViewFragment.noteContent.getText().toString();
-                                    notes.get(currentIndex).title = noteViewFragment.noteTitle.getText().toString();
-                                    currentNote = notes.get(currentIndex);
+
+                                    if(sharedNote){
+                                        currentNote = sharedNotes.get(currentIndex);
+                                    }else{
+                                        currentNote = notes.get(currentIndex);
+                                    }
+                                    currentNote.content = noteViewFragment.noteContent.getText().toString();
+                                    currentNote.title = noteViewFragment.noteTitle.getText().toString();
                                 }
                                 else{
                                     currentNote.content = noteViewFragment.noteContent.getText().toString();
@@ -335,9 +364,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     postTask.execute("https://kommentapi.herokuapp.com/notes/");
                                 }else{
                                     NetworkHandler.UpdateNote updateTask = new NetworkHandler.UpdateNote();
+                                    Log.i(TAG, "onClick: " + currentNote.id);
                                     updateTask.execute("https://kommentapi.herokuapp.com/notes/" + currentNote.id);
                                 }
-                                ShowHome();
+                                if(sharedNote){
+                                    ShowShared();
+                                }else{
+                                    ShowHome();
+                                }
                             }
                         })
                         .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -346,7 +380,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 if(newNote){
                                     notes.remove(currentIndex);
                                 }
-                                ShowHome();
+                                if(sharedNote){
+                                    ShowShared();
+                                }else{
+                                    ShowHome();
+                                }
                             }
                         })
                         .show();
@@ -356,7 +394,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ShowHome();
             }
             else{
-                ShowHome();
+                if(sharedNote){
+                    ShowShared();
+                }else{
+                    ShowHome();
+                }
             }
         }else if(showingSettings){
             Log.i("USER", "Placeholder");

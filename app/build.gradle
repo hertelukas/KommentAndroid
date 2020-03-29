@@ -8,8 +8,8 @@ android {
         applicationId "com.purplepandagames.komment"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 8
-        versionName "0.1.7b"
+        versionCode 9
+        versionName "0.1.8b"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

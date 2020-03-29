@@ -45,9 +45,7 @@ public class HomeFragment extends Fragment {
     private MainActivity main;
     private SwipeRefreshLayout swiper;
     private TextView status;
-    private RecyclerViewAdapter adapter;
-
-    FloatingActionButton fab;
+    public static boolean reloading = false;
 
     private  View view;
 
@@ -57,13 +55,14 @@ public class HomeFragment extends Fragment {
         view =inflater.inflate(R.layout.fragment_home, container, false);
         NetworkHandler.homeFragment = this;
 
-        fab = view.findViewById(R.id.createNote);
+        FloatingActionButton fab = view.findViewById(R.id.createNote);
         swiper = view.findViewById(R.id.swipe_refresh);
         notesView = view.findViewById(R.id.notes_view);
 
         swiper.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                reloading = true;
                 NetworkHandler.GetNotes();
             }
         });
@@ -217,6 +216,7 @@ public class HomeFragment extends Fragment {
             }
         }).attachToRecyclerView(notesView);
 
+        reloading = false;
         swiper.setRefreshing(false);
     }
 
@@ -241,7 +241,7 @@ public class HomeFragment extends Fragment {
             noteTitles.add(note.title);
         }
 
-        adapter = new RecyclerViewAdapter(noteTitles,main);
+        RecyclerViewAdapter adapter = new RecyclerViewAdapter(noteTitles, main);
         return adapter;
     }
     void onSuccessDeleting(int index){

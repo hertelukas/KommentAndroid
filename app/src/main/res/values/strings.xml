@@ -23,7 +23,7 @@
     <string name="user_exists">User already exists.</string>\
     <string name="username_too_short">Username is too short</string>
     <string name="password_too_short">Password is too short</string>
-    <string name="loading_notes">Loading notes...</string>
+    <string name="loading_notes">Loading notes…</string>
     <string name="server_error">Server Error. Try again later</string>
     <string name="no_notes">You have 0 notes. Create one!</string>
     <string name="no_internet">No internet connection!</string>
@@ -47,4 +47,5 @@
     <string name="note_already_public">This note is already public</string>
     <string name="make_private">Make private</string>
     <string name="note_not_public">This note isn\'t public.</string>
+    <string name="missing_implementation">Not yet implemented.</string>
 </resources>

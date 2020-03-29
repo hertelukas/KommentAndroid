@@ -1,28 +1,24 @@
 package com.purplepandagames.komment;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
+public class RecyclerSharedViewAdapter extends RecyclerView.Adapter<RecyclerSharedViewAdapter.ViewHolder>{
 
     private ArrayList<String> names = new ArrayList<>();
     private Context mContext;
 
 
-    public RecyclerViewAdapter(ArrayList<String> names, Context mContext) {
+    public RecyclerSharedViewAdapter(ArrayList<String> names, Context mContext) {
         this.names = names;
         this.mContext = mContext;
     }
@@ -42,11 +38,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             @Override
             public void onClick(View v) {
                 MainActivity main = (MainActivity) mContext;
-                if(!HomeFragment.reloading){
-                    main.showNote(position);
-                    main.newNote = false;
-                    main.sharedNote = false;
-                }
+                main.showSharedNote(position);
+                main.newNote = false;
+                main.sharedNote = true;
             }
         });
 
